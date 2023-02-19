@@ -3,6 +3,13 @@ const express = require("express");
 const firebase = require('firebase');
 const app = express();
 const port = process.env.PORT || 8000;
+const cors = require('cors');
+app.use(cors({
+    origin: "*", // use your actual domain name (or localhost), using * is not recommended
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Origin', 'X-Requested-With', 'Accept', 'x-client-key', 'x-client-token', 'x-client-secret', 'Authorization'],
+    credentials: true
+}))
 
 const firebaseConfig = {
   apiKey: "AIzaSyBFxKD78rgmwaiyP6vaPJ2QvWp0Hpv--_k",
