@@ -4,13 +4,7 @@ const firebase = require('firebase');
 const app = express();
 const port = process.env.PORT || 8000;
 const cors = require('cors');
-app.use(cors({
-    origin: "*", // use your actual domain name (or localhost), using * is not recommended
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Origin', 'X-Requested-With', 'Accept', 'x-client-key', 'x-client-token', 'x-client-secret', 'Authorization'],
-    credentials: true
-}))
-
+app.use(cors())
 const firebaseConfig = {
   apiKey: "AIzaSyBFxKD78rgmwaiyP6vaPJ2QvWp0Hpv--_k",
   authDomain: "stock-backend-2da5a.firebaseapp.com",
@@ -165,61 +159,3 @@ app.get("/long-intraday", (req, res) => {
 app.listen(port, () => {
   console.log("Server running on ", port);
 })
-
-/*
-3330.2
-3300
-3229
-3285
-3290.1
-3329
-3342.9
-3317
-3330
-3380
-3380
-3365
-3388
-3425
-3425.3
-3426
-3420
-3449
-3363
-3427
-3504
-3473.15
-3468.9
-3478.05
-3515
-3520
-
-close:
-3311.1
-3211.55
-3254.03
-3221.15
-3262.61
-3268.15
-3307.55
-3334.05
-3378.4
-3390
-3373.1
-3363.1
-3414.9
-3436.3
-3429.75
-3411.05
-3433.65
-3358.7
-3408.35
-3460.4
-3482.3
-3459.95
-3472.55
-3520.1
-3540.85
-3537.55
-
-*/
