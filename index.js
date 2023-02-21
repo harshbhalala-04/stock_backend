@@ -1,9 +1,19 @@
 const { default: axios } = require("axios");
 const express = require("express");
 const firebase = require('firebase');
+const cookieParser = require("cookie-parser");
+const sessions = require('express-session');
 const app = express();
 const port = process.env.PORT || 8000;
+const oneDay = 1000 * 60 * 60 * 24;
 const cors = require('cors');
+//session middleware
+app.use(sessions({
+  secret: "stock analysis",
+  saveUninitialized: true,
+  cookie: { maxAge: oneDay },
+  resave: false
+}));
 app.use(cors())
 const firebaseConfig = {
   apiKey: "AIzaSyBFxKD78rgmwaiyP6vaPJ2QvWp0Hpv--_k",
@@ -19,43 +29,54 @@ firebase.initializeApp(firebaseConfig);
 
 const db = firebase.firestore();
 
-
-app.get("/long-hold", (req, res) => {
-  console.log(req.query)
+const calculateLongHold = (finalRes, startDate, endDate) => {
+  console.log("finalRes")
+  console.log(startDate)
+  console.log(endDate)
   const closingList = [];
   const dateList = [];
-
-  axios.get(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=${req.query.symbol}&outputsize=full&apikey=PC7NYSVUMGVGRVXH`).then(function (respose) {
-    const finalRes = respose.data["Time Series (Daily)"];
-
-    for (key in finalRes) {
-      if (new Date(key) >= new Date(req.query.startDate.toString()) && new Date(key) <= new Date(req.query.endDate.toString())) {
-        dateList.push(key)
-        closingList.push(finalRes[key]['5. adjusted close']);
-      }
+  for (key in finalRes) {
+    if (new Date(key) >= new Date(startDate) && new Date(key) <= new Date(endDate)) {
+      dateList.push(key)
+      closingList.push(finalRes[key]['5. adjusted close']);
     }
+  }
+  const returnList = [];
+  let baseIndex = 100;
+  const indexList = [100];
+  const finalDates = [];
+  for (let i = closingList.length - 2; i >= 0; i--) {
+    let returnVal = ((closingList[i] - closingList[i + 1]) / closingList[i + 1]) * 100;
+    returnVal = Number(returnVal.toFixed(3))
+    returnList.push(returnVal);
+    baseIndex = baseIndex * (1 + (returnVal / 100));
+    indexList.push(Number(baseIndex.toFixed(3)));
+    finalDates.push(dateList[i + 1])
+  }
+  finalDates.push(dateList[0])
+  return { "returnList": returnList, "indexList": indexList, "finalDates": finalDates };
+}
 
-    const returnList = [];
-    let baseIndex = 100;
-    const indexList = [100];
-    const finalDates = [];
-    for (let i = closingList.length - 2; i >= 0; i--) {
-      let returnVal = ((closingList[i] - closingList[i + 1]) / closingList[i + 1]) * 100;
-      returnVal = Number(returnVal.toFixed(3))
-      returnList.push(returnVal);
-      baseIndex = baseIndex * (1 + (returnVal / 100));
-      indexList.push(Number(baseIndex.toFixed(3)));
-      finalDates.push(dateList[i + 1])
-    }
-    finalDates.push(dateList[0])
-    res.send({ "returnList": returnList, "indexList": indexList, "finalDates": finalDates })
 
-  }).catch(function (error) { console.log(error) })
+app.get("/long-hold", (req, res) => {
+  if (req.session.finalRes === undefined || req.session.stockSymbol !== req.query.symbol) {
+    axios.get(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=${req.query.symbol}&outputsize=full&apikey=PC7NYSVUMGVGRVXH`).then(function (respose) {
+      req.session.finalRes = respose.data["Time Series (Daily)"];
+      req.session.stockSymbol = req.query.symbol;
+      console.log(req.query.startDate.toString());
+      console.log(req.query.endDate.toString());
+      res.send(calculateLongHold(respose.data["Time Series (Daily)"], req.query.startDate.toString(), req.query.endDate.toString()));
+    }).catch(function (error) {
+      console.log("catch block");
+      console.log(error)
+    })
+  } else {
+    const finalRes = req.session.finalRes;
+    res.send(calculateLongHold(finalRes, req.query.startDate.toString(), req.query.endDate.toString()))
+  }
 })
 
 app.get("/long-intraday", (req, res) => {
-
-
   let openList = [];
   let closingList = [];
   const dateList = [];
