@@ -1,38 +1,15 @@
 const { default: axios } = require("axios");
 const express = require("express");
 const firebase = require('firebase');
-const cookieParser = require("cookie-parser");
-const sessions = require('express-session');
+const bodyParser = require('body-parser');
 const app = express();
 const port = process.env.PORT || 8000;
-const oneDay = 1000 * 60 * 60 * 24;
 const cors = require('cors');
-//session middleware
-app.use(sessions({
-  secret: "stock analysis",
-  saveUninitialized: true,
-  cookie: { maxAge: oneDay },
-  resave: false
-}));
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 app.use(cors())
-const firebaseConfig = {
-  apiKey: "AIzaSyBFxKD78rgmwaiyP6vaPJ2QvWp0Hpv--_k",
-  authDomain: "stock-backend-2da5a.firebaseapp.com",
-  projectId: "stock-backend-2da5a",
-  storageBucket: "stock-backend-2da5a.appspot.com",
-  messagingSenderId: "343993585745",
-  appId: "1:343993585745:web:dbaa6540e76d62db026870",
-  measurementId: "G-GSGZ4DJ48M"
-};
-
-firebase.initializeApp(firebaseConfig);
-
-const db = firebase.firestore();
 
 const calculateLongHold = (finalRes, startDate, endDate) => {
-  console.log("finalRes")
-  console.log(startDate)
-  console.log(endDate)
   const closingList = [];
   const dateList = [];
   for (key in finalRes) {
@@ -54,26 +31,46 @@ const calculateLongHold = (finalRes, startDate, endDate) => {
     finalDates.push(dateList[i + 1])
   }
   finalDates.push(dateList[0])
-  return { "returnList": returnList, "indexList": indexList, "finalDates": finalDates };
+  return { "indexList": indexList, "finalDates": finalDates, "finalRes": finalRes };
 }
 
 
-app.get("/long-hold", (req, res) => {
-  if (req.session.finalRes === undefined || req.session.stockSymbol !== req.query.symbol) {
+app.post("/demo", (req, res) => {
+  console.log(req.body)
+})
+
+app.post("/long-hold", (req, res) => {
+  const finalRes = req.body;
+  console.log(req.body)
+  if (Object.keys(finalRes).length === 0) {
     axios.get(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=${req.query.symbol}&outputsize=full&apikey=PC7NYSVUMGVGRVXH`).then(function (respose) {
-      req.session.finalRes = respose.data["Time Series (Daily)"];
-      req.session.stockSymbol = req.query.symbol;
-      console.log(req.query.startDate.toString());
-      console.log(req.query.endDate.toString());
+      console.log("Req body empty");
       res.send(calculateLongHold(respose.data["Time Series (Daily)"], req.query.startDate.toString(), req.query.endDate.toString()));
     }).catch(function (error) {
       console.log("catch block");
       console.log(error)
     })
   } else {
-    const finalRes = req.session.finalRes;
+    console.log("Req body contains val");
     res.send(calculateLongHold(finalRes, req.query.startDate.toString(), req.query.endDate.toString()))
   }
+
+  // if (req.session.finalRes === undefined || req.session.stockSymbol !== req.query.symbol) {
+  //   axios.get(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=${req.query.symbol}&outputsize=full&apikey=PC7NYSVUMGVGRVXH`).then(function (respose) {
+  //     req.session.finalRes = respose.data["Time Series (Daily)"];
+  //     req.session.stockSymbol = req.query.symbol;
+  //     req.session.save();
+  //     console.log(req.query.startDate.toString());
+  //     console.log(req.query.endDate.toString());
+  //     res.send(calculateLongHold(respose.data["Time Series (Daily)"], req.query.startDate.toString(), req.query.endDate.toString()));
+  //   }).catch(function (error) {
+  //     console.log("catch block");
+  //     console.log(error)
+  //   })
+  // } else {
+  //   const finalRes = req.session.finalRes;
+  //   res.send(calculateLongHold(finalRes, req.query.startDate.toString(), req.query.endDate.toString()))
+  // }
 })
 
 app.get("/long-intraday", (req, res) => {
