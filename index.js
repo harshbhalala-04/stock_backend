@@ -27,7 +27,7 @@ mongoose
     console.log("error " + e);
   });
 
-const calculateLongHold = (finalRes, startDate, endDate) => {
+const calculateLongHold = (finalRes, startDate, endDate, baseValue) => {
   const closingList = [];
   const dateList = [];
   const returnList = [];
@@ -44,8 +44,8 @@ const calculateLongHold = (finalRes, startDate, endDate) => {
     }
   }
 
-  let baseIndex = 100;
-  const indexList = [100];
+  let baseIndex = Number.parseFloat(baseValue);
+  const indexList = [baseIndex];
   const finalDates = [];
   for (let i = 1; i < dateList.length; i++) {
     // let returnVal =
@@ -106,8 +106,6 @@ app.get("/long-hold", async (req, res) => {
             });
           }
         }
-        console.log(finalDates.length);
-        console.log(returnList.length);
         try {
           const name = req.query.symbol;
           const lastDate = finalDates[finalDates.length - 1];
@@ -118,7 +116,8 @@ app.get("/long-hold", async (req, res) => {
             calculateLongHold(
               stock.returnList,
               req.query.startDate.toString(),
-              req.query.endDate.toString()
+              req.query.endDate.toString(),
+              req.query.baseValue
             )
           );
         } catch (err) {
@@ -135,7 +134,8 @@ app.get("/long-hold", async (req, res) => {
       calculateLongHold(
         stock.returnList,
         req.query.startDate.toString(),
-        req.query.endDate.toString()
+        req.query.endDate.toString(),
+        req.query.baseValue
       )
     );
   }
