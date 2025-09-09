@@ -11,7 +11,11 @@ const app = express();
 const port = process.env.PORT || 8000;
 
 app.use(bodyParser.json({limit: "50mb"}));
-app.use(cors());
+app.use(cors({
+  origin: '*', // Or replace '*' with your frontend URL for more security
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 app.use(bodyParser.urlencoded({
 	limit: "50mb",
 	extended: true
