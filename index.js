@@ -21,7 +21,7 @@ app.use(bodyParser.urlencoded({
 	extended: true
 }));
 const dbUrl =
-	"mongodb+srv://HarshBhalala:harsh492002@scripstats-cluster.2mth2jq.mongodb.net/?retryWrites=true&w=majority&appName=scripstats-cluster";
+	"mongodb+srv://HarshBhalala:harsh492002@scripstats-cluster.2mth2jq.mongodb.net/stock_analysis?retryWrites=true&w=majority&appName=scripstats-cluster";
 
 const connectionParams = {
 	useNewUrlParser: true,
