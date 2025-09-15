@@ -41,6 +41,10 @@ app.use("/chart", chartRoutes);
 app.use("/strategy", strategyRoutes);
 app.use("/search", searchRoutes);
 
+app.get("/", (req, res) => {
+	res.json({"message": "Server started"});
+});
+
 app.get("/status", (req, res) => {
 	const state = mongoose.connection.readyState;
 
