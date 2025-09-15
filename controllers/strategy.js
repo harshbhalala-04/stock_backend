@@ -402,7 +402,7 @@ export const longIntraDay = async (req, res) => {
 	const dateList = [];
 	axios
 		.get(
-			`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=${req.query.symbol}&outputsize=full&apikey=PC7NYSVUMGVGRVXH`
+			`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=${req.query.symbol}&outputsize=full&apikey=F6RWZS8C2FNP2XMV`
 		)
 		.then(function (respose) {
 			const finalRes = respose.data["Time Series (Daily)"];

@@ -278,9 +278,9 @@ export const calculateStats = async (req, res) => {
 
 export const demoChart = async (req, res) => {
   const closingDataResponse = await axios.get(
-    "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IBM&outputsize=full&apikey=PC7NYSVUMGVGRVXH");
+    "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IBM&outputsize=full&apikey=F6RWZS8C2FNP2XMV");
   const earningsDataResponse = await axios.get(
-    "https://www.alphavantage.co/query?function=EARNINGS&symbol=IBM&apikey=PC7NYSVUMGVGRVXH");
+    "https://www.alphavantage.co/query?function=EARNINGS&symbol=IBM&apikey=F6RWZS8C2FNP2XMV");
   const closingDataResponseMap = closingDataResponse.data;
   const earningsDataResponseMap = earningsDataResponse.data;
   const quartlyEarningsMap = earningsDataResponseMap["quarterlyEarnings"];
