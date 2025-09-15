@@ -41,6 +41,31 @@ app.use("/chart", chartRoutes);
 app.use("/strategy", strategyRoutes);
 app.use("/search", searchRoutes);
 
+app.get("/status", (req, res) => {
+	const state = mongoose.connection.readyState;
+
+  let status = "Unknown";
+  switch (state) {
+    case 0:
+      status = "🔴 Disconnected";
+      break;
+    case 1:
+      status = "🟢 Connected";
+      break;
+    case 2:
+      status = "🟡 Connecting";
+      break;
+    case 3:
+      status = "🟠 Disconnecting";
+      break;
+  }
+
+  res.json({
+    state,
+    status,
+  });
+});
+
 app.listen(port, () => {
 	console.log("Server running on ", port);
 });
