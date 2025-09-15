@@ -32,7 +32,7 @@ const connectionParams = {
 };
 
 mongoose
-	.connect(process.env.MONGO_URL, connectionParams)
+	.connect(process.env.MONGODB_URI, connectionParams)
 	.then(() => {
 		console.log("connected");
 	})
