@@ -2,13 +2,18 @@ import axios from "axios";
 import express from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
+import { MongoClient, ServerApiVersion } from "mongodb";
 import chartRoutes from "./routes/chartRoutes.js";
 import strategyRoutes from "./routes/strategyRoutes.js";
 import searchRoutes from "./routes/searchRoutes.js";
 import cors from "cors";
+import * as dotenv from 'dotenv';
+
 
 const app = express();
 const port = process.env.PORT || 8000;
+// Load environment variables from .env file
+dotenv.config();
 
 app.use(bodyParser.json({limit: "50mb"}));
 app.use(cors({
@@ -20,16 +25,14 @@ app.use(bodyParser.urlencoded({
 	limit: "50mb",
 	extended: true
 }));
-const dbUrl =
-	"mongodb+srv://HarshBhalala:harsh492002@scripstats-cluster.2mth2jq.mongodb.net/stock_analysis?retryWrites=true&w=majority&appName=scripstats-cluster";
-
+	
 const connectionParams = {
 	useNewUrlParser: true,
 	useUnifiedTopology: true,
 };
 
 mongoose
-	.connect(dbUrl, connectionParams)
+	.connect(process.env.MONGO_URL, connectionParams)
 	.then(() => {
 		console.log("connected");
 	})
